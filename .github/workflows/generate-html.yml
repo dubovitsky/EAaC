@@ -23,7 +23,7 @@ jobs:
 
       - name: Download Archi
         run: |
-          wget https://www.archimatetool.com/downloads/Archi-5.7.0-linux64.tgz -O archi.tgz
+          wget https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz -O archi.tgz
           tar -xzf archi.tgz
           mv Archi* archi
 
