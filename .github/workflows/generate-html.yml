@@ -30,14 +30,19 @@ jobs:
 
       - name: Generate HTML report
         run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb
+          sudo apt-get update && sudo apt-get install -y xvfb
           mkdir -p output/html-report
-          xvfb-run -a ./archi/Archi \
-            -nosplash \
-            -application com.archimatetool.commandline.app \
-            --grafico.loadModel "./model" \
-            --html.createReport "output/html-report"
+          xvfb-run ./archi/Archi -application com.archimatetool.commandline.app \
+            --grafico.loadModel model \
+            --html.createReport output/html-report
+        working-directory: ${{ github.workspace }}
+
+      - name: Debug model directory
+        run: ls -R model
+        
+      - name: Debug Archi logs
+        if: failure()
+        run: cat ~/.archi/.metadata/.log || true
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
