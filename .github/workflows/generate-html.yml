@@ -32,21 +32,14 @@ jobs:
           tar -xzf archi.tgz
           mv Archi* archi
 
-      - name: Debug model directory
-        run: ls -R model
-
       - name: Prepare Archi environment
         run: |
           mkdir -p ~/.archi/.metadata
           echo "Archi workspace initialized."
           ls -la ~/.archi
 
-      - name: Verify model files
-        run: |
-          echo "Current working directory: $(pwd)"
-          ls -R model || echo "Model folder not found!"
-          echo "folder.xml content:"
-          head -n 10 model/folder.xml || echo "No folder.xml"
+      - name: Prepare Archi workspace
+        run: mkdir -p ./archi-workspace/.metadata
 
       - name: Prepare HTML report folder
         run: mkdir -p ./output/html-report
@@ -58,10 +51,10 @@ jobs:
             -nosplash \
             -consoleLog \
             -application com.archimatetool.commandline.app \
-            -data ~/.archi \
+            -data ./archi-workspace \
             -model ./eaac.archimate \
             -htmlReport ./output/html-report \
-            -vmargs -Dosgi.logfile=archi.log
+            -vmargs -Dosgi.logfile=./archi.log
 
       - name: Show Archi logs
         if: always()
