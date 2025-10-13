@@ -30,9 +30,11 @@ jobs:
 
       - name: Generate HTML report
         run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
           mkdir -p output/html-report
-          ./archi/Archi \
-            -consoleLog \
+          xvfb-run -a ./archi/Archi \
+            -nosplash \
             -application com.archimatetool.commandline.app \
             --grafico.loadModel "./model" \
             --html.createReport "output/html-report"
