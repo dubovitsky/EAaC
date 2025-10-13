@@ -1,11 +1,15 @@
 name: Generate ArchiMate HTML Report
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - 'model/**'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -23,18 +27,45 @@ jobs:
 
       - name: Download Archi
         run: |
-          wget https://www.archimatetool.com/downloads/Archi-5.7.0-linux64.tgz -O archi.tgz
+          wget https://github.com/archimatetool/archi.io/releases/download/5.7.0/Archi-Linux64-5.7.0.tgz -O archi.tgz
           tar -xzf archi.tgz
           mv Archi* archi
 
-      - name: Generate HTML report
+      - name: Debug model directory
+        run: ls -R model
+
+      - name: Prepare Archi environment
         run: |
-          mkdir -p output/html-report
-          ./archi/Archi \
+          mkdir -p ~/.archi/.metadata
+          echo "Archi workspace initialized."
+          ls -la ~/.archi
+
+      - name: Verify model files
+        run: |
+          echo "Current working directory: $(pwd)"
+          ls -R model || echo "Model folder not found!"
+          echo "folder.xml content:"
+          head -n 10 model/folder.xml || echo "No folder.xml"
+
+      - name: Generate HTML report
+        timeout-minutes: 5
+        run: |
+          xvfb-run --auto-servernum ./archi/Archi \
+            -nosplash \
             -consoleLog \
             -application com.archimatetool.commandline.app \
-            --grafico.loadModel "./model" \
-            --html.createReport "output/html-report"
+            -data ~/.archi \
+            -model ./model/folder.xml \
+            -htmlReport ./output/html-report \
+            -vmargs -Dosgi.logfile=archi.log
+
+      - name: Show Archi logs
+        if: always()
+        run: |
+          echo "==== archi.log ===="
+          cat archi.log || echo "No archi.log found"
+          echo "==== ~/.archi/.metadata/.log ===="
+          cat ~/.archi/.metadata/.log || echo "No metadata log"
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
@@ -47,3 +78,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output/html-report
+          publish_branch: gh-pages
