@@ -53,13 +53,11 @@ jobs:
           xvfb-run --auto-servernum ./archi/Archi \
             -nosplash \
             -consoleLog \
-            -cleanConfig \
-            --launcher.suppressErrors \
-            --launcher.defaultAction openFile \
             -application com.archimatetool.commandline.app \
-            --grafico.loadModel "$(pwd)/model" \
-            --html.createReport "$(pwd)/output/html-report" \
-            -vmargs -Dosgi.logfile="$(pwd)/archi.log"
+            -data ~/.archi \
+            -model ./model/folder.xml \
+            -htmlReport ./output/html-report \
+            -vmargs -Dosgi.logfile=archi.log
 
       - name: Show Archi logs
         if: always()
