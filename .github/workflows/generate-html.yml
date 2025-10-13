@@ -37,9 +37,8 @@ jobs:
       - name: Prepare Archi environment
         run: |
           mkdir -p ~/.archi/.metadata
-          mkdir -p output/html-report
           echo "Archi workspace initialized."
-          xvfb-run --auto-servernum ./archi/Archi -application com.archimatetool.commandline.app -nosplash -consoleLog -cleanConfig -? || true
+          ls -la ~/.archi
 
       - name: Verify model files
         run: |
@@ -49,19 +48,26 @@ jobs:
           head -n 10 model/folder.xml || echo "No folder.xml"
 
       - name: Generate HTML report
+        timeout-minutes: 5
         run: |
           xvfb-run --auto-servernum ./archi/Archi \
-            -Dosgi.logfile=$(pwd)/archi.log
             -nosplash \
             -consoleLog \
-            -application com.archimatetool.commandline.app \
             -cleanConfig \
+            --launcher.suppressErrors \
+            --launcher.defaultAction openFile \
+            -application com.archimatetool.commandline.app \
             --grafico.loadModel "$(pwd)/model" \
-            --html.createReport "$(pwd)/output/html-report"
+            --html.createReport "$(pwd)/output/html-report" \
+            -vmargs -Dosgi.logfile="$(pwd)/archi.log"
 
-      - name: Show Archi log
+      - name: Show Archi logs
         if: always()
-        run: cat archi.log || echo "No archi.log file"
+        run: |
+          echo "==== archi.log ===="
+          cat archi.log || echo "No archi.log found"
+          echo "==== ~/.archi/.metadata/.log ===="
+          cat ~/.archi/.metadata/.log || echo "No metadata log"
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
