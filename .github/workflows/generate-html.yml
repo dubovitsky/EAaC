@@ -8,6 +8,9 @@ on:
     paths:
       - 'model/**'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,6 +46,13 @@ jobs:
       - name: Debug Archi logs
         if: failure()
         run: cat ~/.archi/.metadata/.log || true
+
+      - name: Show Archi logs
+        if: always()
+        run: |
+          echo "==== Archi metadata log ===="
+          cat ~/.archi/.metadata/.log || echo "No log file found."
+          echo "==== End of log ===="
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
