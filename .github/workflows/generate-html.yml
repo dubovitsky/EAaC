@@ -55,7 +55,7 @@ jobs:
             -consoleLog \
             -application com.archimatetool.commandline.app \
             -data ~/.archi \
-            -model ./model/folder.xml \
+            -model ./eaac.archimate \
             -htmlReport ./output/html-report \
             -vmargs -Dosgi.logfile=archi.log
 
