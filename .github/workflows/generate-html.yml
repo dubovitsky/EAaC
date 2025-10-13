@@ -1,0 +1,49 @@
+name: Generate ArchiMate HTML Report
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'model/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Download Archi
+        run: |
+          wget https://www.archimatetool.com/downloads/latest/Archi-Linux64.tgz -O archi.tgz
+          tar -xzf archi.tgz
+          mv Archi* archi
+
+      - name: Generate HTML report
+        run: |
+          mkdir -p output/html-report
+          ./archi/Archi \
+            -consoleLog \
+            -application com.archimatetool.commandline.app \
+            --grafico.loadModel "./model" \
+            --html.createReport "output/html-report"
+
+      - name: Upload HTML report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: output/html-report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output/html-report
