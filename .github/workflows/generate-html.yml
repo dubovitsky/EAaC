@@ -41,21 +41,27 @@ jobs:
           echo "Archi workspace initialized."
           xvfb-run --auto-servernum ./archi/Archi -application com.archimatetool.commandline.app -nosplash -consoleLog -cleanConfig -? || true
 
+      - name: Verify model files
+        run: |
+          echo "Current working directory: $(pwd)"
+          ls -R model || echo "Model folder not found!"
+          echo "folder.xml content:"
+          head -n 10 model/folder.xml || echo "No folder.xml"
+
       - name: Generate HTML report
         run: |
           xvfb-run --auto-servernum ./archi/Archi \
+            -Dosgi.logfile=$(pwd)/archi.log
             -nosplash \
             -consoleLog \
             -application com.archimatetool.commandline.app \
-            --grafico.loadModel ./model \
-            --html.createReport output/html-report
+            -cleanConfig \
+            --grafico.loadModel "$(pwd)/model" \
+            --html.createReport "$(pwd)/output/html-report"
 
-      - name: Show Archi logs
+      - name: Show Archi log
         if: always()
-        run: |
-          echo "==== Archi metadata log ===="
-          cat ~/.archi/.metadata/.log || echo "No log file found."
-          echo "==== End of log ===="
+        run: cat archi.log || echo "No archi.log file"
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
