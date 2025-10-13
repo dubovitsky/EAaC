@@ -31,21 +31,24 @@ jobs:
           tar -xzf archi.tgz
           mv Archi* archi
 
-      - name: Generate HTML report
-        run: |
-          sudo apt-get update && sudo apt-get install -y xvfb
-          mkdir -p output/html-report
-          xvfb-run ./archi/Archi -application com.archimatetool.commandline.app \
-            --grafico.loadModel model \
-            --html.createReport output/html-report
-        working-directory: ${{ github.workspace }}
-
       - name: Debug model directory
         run: ls -R model
-        
-      - name: Debug Archi logs
-        if: failure()
-        run: cat ~/.archi/.metadata/.log || true
+
+      - name: Prepare Archi environment
+        run: |
+          mkdir -p ~/.archi/.metadata
+          mkdir -p output/html-report
+          echo "Archi workspace initialized."
+          xvfb-run --auto-servernum ./archi/Archi -application com.archimatetool.commandline.app -nosplash -consoleLog -cleanConfig -? || true
+
+      - name: Generate HTML report
+        run: |
+          xvfb-run --auto-servernum ./archi/Archi \
+            -nosplash \
+            -consoleLog \
+            -application com.archimatetool.commandline.app \
+            --grafico.loadModel ./model \
+            --html.createReport output/html-report
 
       - name: Show Archi logs
         if: always()
@@ -65,3 +68,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output/html-report
+          publish_branch: gh-pages
