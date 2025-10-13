@@ -7,6 +7,7 @@ on:
       - main
     paths:
       - 'model/**'
+      - 'eaac.archimate'
 
 permissions:
   contents: write
@@ -46,6 +47,9 @@ jobs:
           ls -R model || echo "Model folder not found!"
           echo "folder.xml content:"
           head -n 10 model/folder.xml || echo "No folder.xml"
+
+      - name: Prepare HTML report folder
+        run: mkdir -p ./output/html-report
 
       - name: Generate HTML report
         timeout-minutes: 5
