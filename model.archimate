@@ -11,7 +11,7 @@
   </folder>
   <folder name="Relations" id="id-59e5d0ded422441dba124ce06a893a6a" type="relations"/>
   <folder name="Views" id="id-bf882ecba48c48a2a737dd9842a7bd74" type="diagrams">
-    <element xsi:type="archimate:ArchimateDiagramModel" name="Default View" id="id-feed5f580a664ec39cdbc5f20e2d1625">
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Location View" id="id-feed5f580a664ec39cdbc5f20e2d1625">
       <child xsi:type="archimate:DiagramObject" id="id-7b80d4094e1140839c4295d6547fb32a" archimateElement="id-1c9a4148f54543aba2f1836e851c9045">
         <bounds x="548" y="341" width="120" height="55"/>
       </child>
