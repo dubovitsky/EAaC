@@ -68,12 +68,21 @@ jobs:
 
       - name: Generate HTML Report using Archi
         run: |
+          # Suppress AT-SPI warnings (harmless in headless environment)
+          export NO_AT_BRIDGE=1
           xvfb-run -a $ARCHI_HOME/Archi \
             -consoleLog \
             -nosplash \
             -application com.archimatetool.commandline.app \
             --loadModel model.archimate \
             --html.createReport docs/
+          
+          # Verify HTML was generated
+          if [ ! -f "docs/index.html" ]; then
+            echo "ERROR: HTML report was not generated"
+            exit 1
+          fi
+          echo "✓ HTML report generated successfully"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

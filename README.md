@@ -6,10 +6,14 @@ This repository contains an ArchiMate model that is automatically published to G
 
 ### Enable GitHub Pages
 
+**Important:** GitHub Pages must be enabled before the workflow can deploy.
+
 1. Go to your repository settings on GitHub
 2. Navigate to "Pages" in the left sidebar
-3. Under "Source", select "GitHub Actions"
+3. Under "Source", select **"GitHub Actions"** (not "Deploy from a branch")
 4. Save the changes
+
+**Note:** If you see an error "Get Pages site failed", it means Pages is not enabled yet. Enable it manually using the steps above, then re-run the workflow.
 
 The workflow will automatically:
 - Trigger on commits to `model.archimate`
