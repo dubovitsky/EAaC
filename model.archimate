@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="(new model)" id="id-e3d6756395da403182fe0278d6fba46b" version="5.0.0">
+<archimate:model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:archimate="http://www.archimatetool.com/archimate" name="EAaC" id="id-e3d6756395da403182fe0278d6fba46b" version="5.0.0">
   <folder name="Strategy" id="id-20dddc1e66b44d03b96859ae051d005a" type="strategy"/>
   <folder name="Business" id="id-19576635f0a745c1a8c4f7cb7ddabda3" type="business"/>
   <folder name="Application" id="id-a0afd7b67af7453c9fd2a17b3d1656d7" type="application"/>
   <folder name="Technology &amp; Physical" id="id-f6a3f51f31fb4ad99d9aa22011ffdd81" type="technology"/>
   <folder name="Motivation" id="id-95b1d3ac780d44dc877472b5a717e04c" type="motivation"/>
   <folder name="Implementation &amp; Migration" id="id-636d6e107824475380a245453ace0d54" type="implementation_migration"/>
-  <folder name="Other" id="id-137c2f16a1004b6aa8ec284a07b6c701" type="other"/>
+  <folder name="Other" id="id-137c2f16a1004b6aa8ec284a07b6c701" type="other">
+    <element xsi:type="archimate:Location" name="London" id="id-1c9a4148f54543aba2f1836e851c9045"/>
+  </folder>
   <folder name="Relations" id="id-59e5d0ded422441dba124ce06a893a6a" type="relations"/>
   <folder name="Views" id="id-bf882ecba48c48a2a737dd9842a7bd74" type="diagrams">
-    <element xsi:type="archimate:ArchimateDiagramModel" name="Default View" id="id-feed5f580a664ec39cdbc5f20e2d1625"/>
+    <element xsi:type="archimate:ArchimateDiagramModel" name="Default View" id="id-feed5f580a664ec39cdbc5f20e2d1625">
+      <child xsi:type="archimate:DiagramObject" id="id-7b80d4094e1140839c4295d6547fb32a" archimateElement="id-1c9a4148f54543aba2f1836e851c9045">
+        <bounds x="548" y="341" width="120" height="55"/>
+      </child>
+    </element>
   </folder>
 </archimate:model>
