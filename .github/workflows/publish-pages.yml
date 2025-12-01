@@ -1,0 +1,71 @@
+name: Publish ArchiMate Model to GitHub Pages
+
+on:
+  push:
+    paths:
+      - 'model.archimate'
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+
+      - name: Download and extract Archi
+        run: |
+          # Try to download a recent version of Archi
+          # Update ARCHI_VERSION if needed to match available versions
+          ARCHI_VERSION="5.0.0"
+          ARCHI_URL="https://www.archimatetool.com/downloads/archi/Archi-Linux64-${ARCHI_VERSION}.tar.gz"
+          echo "Downloading Archi ${ARCHI_VERSION} from ${ARCHI_URL}"
+          wget -q "${ARCHI_URL}" || (echo "Version ${ARCHI_VERSION} not found, trying 4.9.1" && ARCHI_VERSION="4.9.1" && wget -q "https://www.archimatetool.com/downloads/archi/Archi-Linux64-${ARCHI_VERSION}.tar.gz")
+          tar -xzf Archi-Linux64-*.tar.gz
+          chmod +x Archi/Archi
+          echo "ARCHI_HOME=$(pwd)/Archi" >> $GITHUB_ENV
+          ls -la Archi/ | head -5
+
+      - name: Generate HTML Report using Archi
+        run: |
+          xvfb-run -a $ARCHI_HOME/Archi \
+            -consoleLog \
+            -nosplash \
+            -application com.archimatetool.commandline.app \
+            --loadModel model.archimate \
+            --html.createReport docs/
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
