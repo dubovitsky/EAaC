@@ -37,13 +37,31 @@ jobs:
 
       - name: Download and extract Archi
         run: |
-          # Try to download a recent version of Archi
-          # Update ARCHI_VERSION if needed to match available versions
+          # Download Archi from GitHub releases
+          # Version format: 5.7.0 -> 570 (remove dots)
           ARCHI_VERSION="5.7.0"
-          ARCHI_URL="https://github.com/archimatetool/archi.io/releases/download/570/Archi-Linux64-${ARCHI_VERSION}.tgz"
+          VERSION_TAG=$(echo "${ARCHI_VERSION}" | tr -d '.')
+          ARCHI_FILENAME="Archi-Linux64-${ARCHI_VERSION}.tgz"
+          ARCHI_URL="https://github.com/archimatetool/archi.io/releases/download/${VERSION_TAG}/${ARCHI_FILENAME}"
+          
           echo "Downloading Archi ${ARCHI_VERSION} from ${ARCHI_URL}"
-          wget -q "${ARCHI_URL}" || (echo "Version ${ARCHI_VERSION} not found, trying 4.9.1" && ARCHI_VERSION="4.9.1" && wget -q "https://www.archimatetool.com/downloads/archi/Archi-Linux64-${ARCHI_VERSION}.tar.gz")
-          tar -xzf Archi-Linux64-*.tar.gz
+          wget -q --user-agent="Mozilla/5.0" "${ARCHI_URL}" -O "${ARCHI_FILENAME}" || {
+            echo "Version ${ARCHI_VERSION} not found, trying 5.0.0..."
+            ARCHI_VERSION="5.0.0"
+            VERSION_TAG="500"
+            ARCHI_FILENAME="Archi-Linux64-${ARCHI_VERSION}.tgz"
+            ARCHI_URL="https://github.com/archimatetool/archi.io/releases/download/${VERSION_TAG}/${ARCHI_FILENAME}"
+            wget -q --user-agent="Mozilla/5.0" "${ARCHI_URL}" -O "${ARCHI_FILENAME}" || {
+              echo "Failed to download from GitHub, trying official site..."
+              ARCHI_VERSION="4.9.1"
+              ARCHI_FILENAME="Archi-Linux64-${ARCHI_VERSION}.tar.gz"
+              ARCHI_URL="https://www.archimatetool.com/downloads/archi/${ARCHI_FILENAME}"
+              wget -q --user-agent="Mozilla/5.0" "${ARCHI_URL}" -O "${ARCHI_FILENAME}"
+            }
+          }
+          
+          echo "Extracting ${ARCHI_FILENAME}..."
+          tar -xzf "${ARCHI_FILENAME}"
           chmod +x Archi/Archi
           echo "ARCHI_HOME=$(pwd)/Archi" >> $GITHUB_ENV
           ls -la Archi/ | head -5
