@@ -4,11 +4,7 @@ on:
   push:
     branches:
       - main
-      - 'feature/**'
-      - 'feat/**'
   pull_request:
-    branches:
-      - '**'
   workflow_dispatch:
 
 permissions:
@@ -122,26 +118,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "[$PROD_URL]($PROD_URL)" >> $GITHUB_STEP_SUMMARY
 
-      - name: Construct Preview URL
-        if: github.ref != 'refs/heads/main'
-        id: preview_url
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            # For PRs, use PR number
-            PREVIEW_PATH="preview/${{ github.event.pull_request.number }}"
-          else
-            # For branches, sanitize branch name (replace / with -)
-            BRANCH_NAME="${{ github.ref_name }}"
-            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
-            PREVIEW_PATH="preview/$SANITIZED_BRANCH"
-          fi
-          
-          PREVIEW_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$PREVIEW_PATH/"
-          echo "url=$PREVIEW_URL" >> $GITHUB_OUTPUT
-          echo "Preview URL: $PREVIEW_URL"
-
       - name: Add link to job summary
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/main' && steps.deployment.outputs.page_url != ''
         run: |
           echo "## 📄 GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -151,16 +129,16 @@ jobs:
             echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[${{ steps.preview_url.outputs.url }}](${{ steps.preview_url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
+          echo "[${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with preview link
-        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main' && steps.deployment.outputs.page_url != ''
         uses: actions/github-script@v7
         with:
           script: |
-            const url = `${{ steps.preview_url.outputs.url }}`;
+            const url = `${{ steps.deployment.outputs.page_url }}`;
             const prNumber = context.payload.pull_request.number;
             const body = `## 📄 Preview Deployment Ready\n\nYour preview is available at:\n\n🔗 [${url}](${url})\n\n> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes.`;
             
