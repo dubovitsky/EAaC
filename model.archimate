@@ -200,6 +200,7 @@
     </folder>
     <element xsi:type="archimate:Location" name="London" id="id-1c9a4148f54543aba2f1836e851c9045"/>
     <element xsi:type="archimate:Location" name="Newcastle" id="id-4edeb0dbb716482ebe9b5a70bb7576b1"/>
+    <element xsi:type="archimate:Grouping" name="UK" id="id-3eecd1aa165a436e91426a4d19a1d55c"/>
   </folder>
   <folder name="Relations" id="id-59e5d0ded422441dba124ce06a893a6a" type="relations">
     <folder name="Archimate Reference" id="id-ee3dfc0449cf46d4bb4480728153f63c">
@@ -332,14 +333,21 @@
       <element xsi:type="archimate:TriggeringRelationship" name="trigger" id="id-4b8f156741b2485886dfc7f998a53297" source="id-00ed3b93a2ff4337a097d988f7064a54" target="id-596ed533afff42fab640aef165644c41"/>
       <element xsi:type="archimate:TriggeringRelationship" name="trigger" id="id-68adbf51863f443c95ba838045ed3a12" source="id-38ea95e7dd834f85b2a8b8c309845e43" target="id-339aa8ff2f244006ade61bb39c735a32"/>
     </folder>
+    <element xsi:type="archimate:CompositionRelationship" id="id-b1643686ae2c451eabe9e95bf94a563b" source="id-3eecd1aa165a436e91426a4d19a1d55c" target="id-1c9a4148f54543aba2f1836e851c9045"/>
+    <element xsi:type="archimate:CompositionRelationship" id="id-c8b9269a9aba47f7917663dd1b5b9154" source="id-3eecd1aa165a436e91426a4d19a1d55c" target="id-4edeb0dbb716482ebe9b5a70bb7576b1"/>
   </folder>
   <folder name="Views" id="id-bf882ecba48c48a2a737dd9842a7bd74" type="diagrams">
     <element xsi:type="archimate:ArchimateDiagramModel" name="Location View" id="id-feed5f580a664ec39cdbc5f20e2d1625">
-      <child xsi:type="archimate:DiagramObject" id="id-7b80d4094e1140839c4295d6547fb32a" archimateElement="id-1c9a4148f54543aba2f1836e851c9045">
-        <bounds x="548" y="341" width="120" height="55"/>
-      </child>
-      <child xsi:type="archimate:DiagramObject" id="id-50745e4f68604ca3beea71528fe0e407" archimateElement="id-4edeb0dbb716482ebe9b5a70bb7576b1">
-        <bounds x="720" y="341" width="120" height="55"/>
+      <child xsi:type="archimate:DiagramObject" id="id-57d5ac7f9ef74392b13cf1c2b458a7c7" textAlignment="1" archimateElement="id-3eecd1aa165a436e91426a4d19a1d55c">
+        <bounds x="108" y="192" width="400" height="140"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-287dfc2b24df41ffb14099c1c4c8d073" source="id-57d5ac7f9ef74392b13cf1c2b458a7c7" target="id-7b80d4094e1140839c4295d6547fb32a" archimateRelationship="id-b1643686ae2c451eabe9e95bf94a563b"/>
+        <sourceConnection xsi:type="archimate:Connection" id="id-73b399a85e7845f98bc91b91980b0c0b" source="id-57d5ac7f9ef74392b13cf1c2b458a7c7" target="id-50745e4f68604ca3beea71528fe0e407" archimateRelationship="id-c8b9269a9aba47f7917663dd1b5b9154"/>
+        <child xsi:type="archimate:DiagramObject" id="id-7b80d4094e1140839c4295d6547fb32a" targetConnections="id-287dfc2b24df41ffb14099c1c4c8d073" archimateElement="id-1c9a4148f54543aba2f1836e851c9045">
+          <bounds x="36" y="48" width="120" height="55"/>
+        </child>
+        <child xsi:type="archimate:DiagramObject" id="id-50745e4f68604ca3beea71528fe0e407" targetConnections="id-73b399a85e7845f98bc91b91980b0c0b" archimateElement="id-4edeb0dbb716482ebe9b5a70bb7576b1">
+          <bounds x="216" y="48" width="120" height="55"/>
+        </child>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" name="ARCHI 3.2 Reference Cards en model" id="id-89fced48400d4cce98d74a4afde83711">
