@@ -17,6 +17,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   # For PRs, use PR number; for branches, use branch name
@@ -113,4 +114,25 @@ jobs:
           echo "::notice::Preview deployment created!"
           echo "::notice::Preview URL will be available in the deployment status"
           echo "::notice::For PRs, check the 'Environments' section or the PR page for the preview link"
+
+      - name: Add link to job summary
+        if: steps.deployment.outputs.page_url != ''
+        run: |
+          echo "✅ Deployed to GitHub Pages" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with preview link
+        if: github.event_name == 'pull_request' && steps.deployment.outputs.page_url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = ${{ toJson(steps.deployment.outputs.page_url) }};
+            const body = `📄 Preview is ready: ${url}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
 
