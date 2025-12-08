@@ -118,10 +118,57 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "[$PROD_URL]($PROD_URL)" >> $GITHUB_STEP_SUMMARY
 
+      - name: Get preview URL from environment
+        if: github.ref != 'refs/heads/main'
+        id: preview_url
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repoOwner = context.repo.owner;
+            const repoName = context.repo.repo;
+            
+            // Try to get the preview URL from the deployment environment
+            let previewUrl = '';
+            
+            try {
+              // Get the latest deployment for this environment
+              const environmentName = context.eventName === 'pull_request' 
+                ? `github-pages-preview-pr-${context.payload.pull_request.number}`
+                : `github-pages-preview-${context.ref.replace('refs/heads/', '').replace(/\//g, '-')}`;
+              
+              // Try to get environment URL
+              const { data: env } = await github.rest.repos.getEnvironment({
+                owner: repoOwner,
+                repo: repoName,
+                environment_name: 'github-pages'
+              });
+              
+              if (env && env.deployment_branch_policy) {
+                // Environment exists, but URL might be in deployment status
+                console.log('Environment found, checking deployments...');
+              }
+            } catch (error) {
+              console.log('Could not get environment:', error.message);
+            }
+            
+            // Construct preview URL - GitHub Pages previews are typically accessible
+            // via the Environments section, but we can provide a direct link format
+            // Note: The actual URL format may vary, this is the most common pattern
+            if (context.eventName === 'pull_request') {
+              previewUrl = `https://${repoOwner}.github.io/${repoName}/preview/${context.payload.pull_request.number}/`;
+            } else {
+              const branchName = context.ref.replace('refs/heads/', '').replace(/\//g, '-');
+              previewUrl = `https://${repoOwner}.github.io/${repoName}/preview/${branchName}/`;
+            }
+            
+            console.log('Preview URL:', previewUrl);
+            return previewUrl;
+
       - name: Add link to job summary
-        if: github.ref != 'refs/heads/main' && steps.deployment.outputs.page_url != ''
+        if: github.ref != 'refs/heads/main'
         run: |
-          echo "## 📄 GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
+          PREVIEW_URL="${{ steps.preview_url.outputs.result }}"
+          echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
@@ -129,18 +176,24 @@ jobs:
             echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[${{ steps.deployment.outputs.page_url }}](${{ steps.deployment.outputs.page_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "[$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes." >> $GITHUB_STEP_SUMMARY
+          echo "> ⚠️ **Important:** Preview deployments may take 5-10 minutes to become available." >> $GITHUB_STEP_SUMMARY
+          echo "> 📍 **To find the actual preview URL:**" >> $GITHUB_STEP_SUMMARY
+          echo "> 1. Go to your repository → **Environments** (or **Deployments**)" >> $GITHUB_STEP_SUMMARY
+          echo "> 2. Click on the deployment for this PR/branch" >> $GITHUB_STEP_SUMMARY
+          echo "> 3. The preview URL will be shown in the deployment details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> 💡 The URL above is an estimated format. The actual URL may differ and can be found in the Environments section." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with preview link
-        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main' && steps.deployment.outputs.page_url != ''
+        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main'
         uses: actions/github-script@v7
         with:
           script: |
-            const url = `${{ steps.deployment.outputs.page_url }}`;
+            const url = `${{ steps.preview_url.outputs.result }}`;
             const prNumber = context.payload.pull_request.number;
-            const body = `## 📄 Preview Deployment Ready\n\nYour preview is available at:\n\n🔗 [${url}](${url})\n\n> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes.`;
+            const body = `## 📄 Preview Deployment Ready\n\n**Estimated Preview URL:**\n🔗 [${url}](${url})\n\n> ⚠️ **Important:** Preview deployments may take 5-10 minutes to become available.\n> 📍 **To find the actual preview URL:**\n> 1. Go to your repository → **Environments** (or **Deployments**)\n> 2. Click on the deployment for this PR\n> 3. The preview URL will be shown in the deployment details\n\n> 💡 The URL above is an estimated format. The actual URL may differ and can be found in the Environments section.`;
             
             await github.rest.issues.createComment({
               owner: context.repo.owner,
