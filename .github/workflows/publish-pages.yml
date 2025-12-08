@@ -8,10 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-  pull-requests: write
+  contents: write
 
 concurrency:
   # For PRs, use PR number; for branches, use branch name
@@ -69,17 +66,6 @@ jobs:
 
       - name: Generate HTML Report using Archi
         run: |
-          # Determine output directory
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            REPORT_DIR="docs/preview/${{ github.event.pull_request.number }}"
-            # Create docs dir so upload-pages-artifact doesn't fail if we only have the subdir
-            mkdir -p docs
-          else
-            REPORT_DIR="docs"
-          fi
-          
-          echo "Generating report in $REPORT_DIR"
-          
           # Suppress AT-SPI warnings (harmless in headless environment)
           export NO_AT_BRIDGE=1
           xvfb-run -a $ARCHI_HOME/Archi \
@@ -87,114 +73,72 @@ jobs:
             -nosplash \
             -application com.archimatetool.commandline.app \
             --loadModel model.archimate \
-            --html.createReport "$REPORT_DIR"
+            --html.createReport docs/
           
-          # Verify HTML was generated inside the specific dir
-          if [ ! -f "$REPORT_DIR/index.html" ]; then
-            echo "ERROR: HTML report was not generated in $REPORT_DIR"
+          # Verify HTML was generated
+          if [ ! -f "docs/index.html" ]; then
+            echo "ERROR: HTML report was not generated"
             exit 1
           fi
           echo "✓ HTML report generated successfully"
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: docs
-
-      - name: Deploy preview to GitHub Pages
-        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
-        id: deployment
-        uses: actions/deploy-pages@v4
-        with:
-          preview: true
-        # Note: First deployment can take 5-10 minutes while GitHub Pages initializes
-        # The "deployment_queued" status is normal during this time
-        # Preview deployments (feature branches/PRs) are accessible via preview URLs
-
-      - name: Deploy production to GitHub Pages
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        id: deployment_prod
-        uses: actions/deploy-pages@v4
-        with:
-          preview: false
-
-      - name: Add production link to job summary
-        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-        run: |
-          # Check if this is a user/org site (repo name is {owner}.github.io)
-          # For user/org sites: https://{owner}.github.io/
-          # For project sites: https://{owner}.github.io/{reponame}/
-          REPO_NAME="${{ github.event.repository.name }}"
-          OWNER="${{ github.repository_owner }}"
-          EXPECTED_USER_SITE="${OWNER}.github.io"
-          
-          if [ "$REPO_NAME" = "$EXPECTED_USER_SITE" ]; then
-            # User/org GitHub Pages site
-            PROD_URL="https://${OWNER}.github.io/"
-          else
-            # Project GitHub Pages site
-            PROD_URL="https://${OWNER}.github.io/${REPO_NAME}/"
-          fi
-          
-          echo "## 🌐 Production Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Production URL:**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "[$PROD_URL]($PROD_URL)" >> $GITHUB_STEP_SUMMARY
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          destination_dir: ${{ github.event_name == 'pull_request' && format('preview/{0}', github.event.pull_request.number) || '.' }}
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
 
       - name: Add link to job summary
-        if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
         run: |
-          BASE_URL="${{ steps.deployment.outputs.page_url }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
           
-          # Construct the correct URL based on where we generated the report
+          # Base URL logic for User vs Project sites
+          if [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+            BASE_URL="https://${OWNER}.github.io/"
+          else
+            BASE_URL="https://${OWNER}.github.io/${REPO_NAME}/"
+          fi
+          
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            PREVIEW_URL="${BASE_URL}preview/${{ github.event.pull_request.number }}/"
+            FINAL_URL="${BASE_URL}preview/${{ github.event.pull_request.number }}/"
             echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
           else
-            PREVIEW_URL="${BASE_URL}"
-            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
+            FINAL_URL="${BASE_URL}"
+            echo "## 🌐 Production Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "**Production URL:**" >> $GITHUB_STEP_SUMMARY
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -n "$BASE_URL" ]; then
-            echo "[$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "> ✅ Preview URL retrieved from deployment" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "> 📍 **Preview URL not available yet.**" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "> The deployment was created successfully, but a direct URL was not returned by the deployment action." >> $GITHUB_STEP_SUMMARY
-          fi
+          echo "[$FINAL_URL]($FINAL_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> ✅ Deployed to gh-pages branch" >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with preview link
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const baseUrl = '${{ steps.deployment.outputs.page_url }}';
+            const repoName = context.repo.repo;
+            const owner = context.repo.owner;
             const prNumber = context.payload.pull_request.number;
-            let url = '';
             
-            if (baseUrl && baseUrl.trim() !== '') {
-              // Append the preview path
-              url = `${baseUrl}preview/${prNumber}/`;
-            }
-            
-            let body = '';
-            
-            if (url) {
-              body = `## 📄 Preview Deployment Ready\n\n**Preview URL:**\n🔗 [${url}](${url})\n\n> ✅ Preview is available at the URL above\n> ⚠️ **Note:** This preview deployment replaces the content at this path temporarily.`;
+            // Construct URL
+            let baseUrl = '';
+            if (repoName === `${owner}.github.io`) {
+              baseUrl = `https://${owner}.github.io/`;
             } else {
-              body = `## 📄 Preview Deployment Created\n\n> ✅ The deployment was successful, but a direct preview URL base was not returned.\n> Please check the "Deployments" section of this PR.`;
+              baseUrl = `https://${owner}.github.io/${repoName}/`;
             }
+            
+            const url = `${baseUrl}preview/${prNumber}/`;
+            
+            const body = `## 📄 Preview Deployment Ready\n\n**Preview URL:**\n🔗 [${url}](${url})\n\n> ✅ Preview deployed to \`gh-pages\` branch (persisted)`;
             
             // Post comment
             await github.rest.issues.createComment({
