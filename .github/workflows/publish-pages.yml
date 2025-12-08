@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - 'feature/**'
+      - 'feat/**'
   pull_request:
   workflow_dispatch:
 
@@ -83,12 +85,28 @@ jobs:
           fi
           echo "✓ HTML report generated successfully"
 
+      - name: Determine deployment directory
+        id: deploy_dir
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            DEPLOY_DIR="preview/${{ github.event.pull_request.number }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            DEPLOY_DIR="."
+          else
+            # For feature branches, sanitize branch name (replace / with -)
+            BRANCH_NAME="${{ github.ref_name }}"
+            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
+            DEPLOY_DIR="preview/$SANITIZED_BRANCH"
+          fi
+          echo "dir=$DEPLOY_DIR" >> $GITHUB_OUTPUT
+          echo "Deployment directory: $DEPLOY_DIR"
+
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
-          destination_dir: ${{ github.event_name == 'pull_request' && format('preview/{0}', github.event.pull_request.number) || '.' }}
+          destination_dir: ${{ steps.deploy_dir.outputs.dir }}
           keep_files: true
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
@@ -105,14 +123,22 @@ jobs:
             BASE_URL="https://${OWNER}.github.io/${REPO_NAME}/"
           fi
           
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            FINAL_URL="${BASE_URL}preview/${{ github.event.pull_request.number }}/"
-            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
-            echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
-          else
+          DEPLOY_DIR="${{ steps.deploy_dir.outputs.dir }}"
+          
+          if [ "$DEPLOY_DIR" = "." ]; then
+            # Production deployment
             FINAL_URL="${BASE_URL}"
             echo "## 🌐 Production Deployment" >> $GITHUB_STEP_SUMMARY
             echo "**Production URL:**" >> $GITHUB_STEP_SUMMARY
+          else
+            # Preview deployment (PR or branch)
+            FINAL_URL="${BASE_URL}${DEPLOY_DIR}/"
+            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
