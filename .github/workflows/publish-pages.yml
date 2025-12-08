@@ -2,21 +2,16 @@ name: Publish ArchiMate Model to GitHub Pages
 
 on:
   push:
-    paths:
-      - 'model.archimate'
     branches:
       - main
       - 'feature/**'
       - 'feat/**'
   pull_request:
-    paths:
-      - 'model.archimate'
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
+  pull-requests: write
 
 concurrency:
   # For PRs, use PR number; for branches, use branch name
@@ -90,27 +85,93 @@ jobs:
           fi
           echo "✓ HTML report generated successfully"
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
+      - name: Determine deployment directory
+        id: deploy_dir
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            DEPLOY_DIR="preview/${{ github.event.pull_request.number }}"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            DEPLOY_DIR="."
+          else
+            # For feature branches, sanitize branch name (replace / with -)
+            BRANCH_NAME="${{ github.ref_name }}"
+            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
+            DEPLOY_DIR="preview/$SANITIZED_BRANCH"
+          fi
+          echo "dir=$DEPLOY_DIR" >> $GITHUB_OUTPUT
+          echo "Deployment directory: $DEPLOY_DIR"
 
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          preview: ${{ github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && github.ref_type == 'branch') }}
-        # Note: First deployment can take 5-10 minutes while GitHub Pages initializes
-        # The "deployment_queued" status is normal during this time
-        # Preview deployments (feature branches/PRs) are accessible via preview URLs
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+          destination_dir: ${{ steps.deploy_dir.outputs.dir }}
+          keep_files: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
 
-      - name: Display Preview URL (for PRs and feature branches)
-        if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && github.ref_type == 'branch')
+      - name: Add link to job summary
         run: |
-          echo "::notice::Preview deployment created!"
-          echo "::notice::Preview URL will be available in the deployment status"
-          echo "::notice::For PRs, check the 'Environments' section or the PR page for the preview link"
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          
+          # Base URL logic for User vs Project sites
+          if [ "$REPO_NAME" = "${OWNER}.github.io" ]; then
+            BASE_URL="https://${OWNER}.github.io/"
+          else
+            BASE_URL="https://${OWNER}.github.io/${REPO_NAME}/"
+          fi
+          
+          DEPLOY_DIR="${{ steps.deploy_dir.outputs.dir }}"
+          
+          if [ "$DEPLOY_DIR" = "." ]; then
+            # Production deployment
+            FINAL_URL="${BASE_URL}"
+            echo "## 🌐 Production Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "**Production URL:**" >> $GITHUB_STEP_SUMMARY
+          else
+            # Preview deployment (PR or branch)
+            FINAL_URL="${BASE_URL}${DEPLOY_DIR}/"
+            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[$FINAL_URL]($FINAL_URL)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> ✅ Deployed to gh-pages branch" >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment PR with preview link
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const repoName = context.repo.repo;
+            const owner = context.repo.owner;
+            const prNumber = context.payload.pull_request.number;
+            
+            // Construct URL
+            let baseUrl = '';
+            if (repoName === `${owner}.github.io`) {
+              baseUrl = `https://${owner}.github.io/`;
+            } else {
+              baseUrl = `https://${owner}.github.io/${repoName}/`;
+            }
+            
+            const url = `${baseUrl}preview/${prNumber}/`;
+            
+            const body = `## 📄 Preview Deployment Ready\n\n**Preview URL:**\n🔗 [${url}](${url})\n\n> ✅ Preview deployed to \`gh-pages\` branch (persisted)`;
+            
+            // Post comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body
+            });
 

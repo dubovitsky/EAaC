@@ -199,6 +199,7 @@
       <element xsi:type="archimate:Location" name="Location" id="id-87963125738046e881ba2dbaf7bdb064"/>
     </folder>
     <element xsi:type="archimate:Location" name="London" id="id-1c9a4148f54543aba2f1836e851c9045"/>
+    <element xsi:type="archimate:Location" name="Newcastle" id="id-4edeb0dbb716482ebe9b5a70bb7576b1"/>
   </folder>
   <folder name="Relations" id="id-59e5d0ded422441dba124ce06a893a6a" type="relations">
     <folder name="Archimate Reference" id="id-ee3dfc0449cf46d4bb4480728153f63c">
@@ -336,6 +337,9 @@
     <element xsi:type="archimate:ArchimateDiagramModel" name="Location View" id="id-feed5f580a664ec39cdbc5f20e2d1625">
       <child xsi:type="archimate:DiagramObject" id="id-7b80d4094e1140839c4295d6547fb32a" archimateElement="id-1c9a4148f54543aba2f1836e851c9045">
         <bounds x="548" y="341" width="120" height="55"/>
+      </child>
+      <child xsi:type="archimate:DiagramObject" id="id-50745e4f68604ca3beea71528fe0e407" archimateElement="id-4edeb0dbb716482ebe9b5a70bb7576b1">
+        <bounds x="720" y="341" width="120" height="55"/>
       </child>
     </element>
     <element xsi:type="archimate:ArchimateDiagramModel" name="ARCHI 3.2 Reference Cards en model" id="id-89fced48400d4cce98d74a4afde83711">
