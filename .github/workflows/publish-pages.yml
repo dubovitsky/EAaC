@@ -69,6 +69,17 @@ jobs:
 
       - name: Generate HTML Report using Archi
         run: |
+          # Determine output directory
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            REPORT_DIR="docs/preview/${{ github.event.pull_request.number }}"
+            # Create docs dir so upload-pages-artifact doesn't fail if we only have the subdir
+            mkdir -p docs
+          else
+            REPORT_DIR="docs"
+          fi
+          
+          echo "Generating report in $REPORT_DIR"
+          
           # Suppress AT-SPI warnings (harmless in headless environment)
           export NO_AT_BRIDGE=1
           xvfb-run -a $ARCHI_HOME/Archi \
@@ -76,11 +87,11 @@ jobs:
             -nosplash \
             -application com.archimatetool.commandline.app \
             --loadModel model.archimate \
-            --html.createReport docs/
+            --html.createReport "$REPORT_DIR"
           
-          # Verify HTML was generated
-          if [ ! -f "docs/index.html" ]; then
-            echo "ERROR: HTML report was not generated"
+          # Verify HTML was generated inside the specific dir
+          if [ ! -f "$REPORT_DIR/index.html" ]; then
+            echo "ERROR: HTML report was not generated in $REPORT_DIR"
             exit 1
           fi
           echo "✓ HTML report generated successfully"
@@ -137,16 +148,23 @@ jobs:
       - name: Add link to job summary
         if: github.event_name == 'pull_request' || github.ref != 'refs/heads/main'
         run: |
-          PREVIEW_URL="${{ steps.deployment.outputs.page_url }}"
-          echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          BASE_URL="${{ steps.deployment.outputs.page_url }}"
+          
+          # Construct the correct URL based on where we generated the report
           if [ "${{ github.event_name }}" == "pull_request" ]; then
+            PREVIEW_URL="${BASE_URL}preview/${{ github.event.pull_request.number }}/"
+            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
           else
+            PREVIEW_URL="${BASE_URL}"
+            echo "## 📄 GitHub Pages Preview Deployment" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
           fi
+          
           echo "" >> $GITHUB_STEP_SUMMARY
-          if [ -n "$PREVIEW_URL" ]; then
+          if [ -n "$BASE_URL" ]; then
             echo "[$PREVIEW_URL]($PREVIEW_URL)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "> ✅ Preview URL retrieved from deployment" >> $GITHUB_STEP_SUMMARY
@@ -161,14 +179,21 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const url = '${{ steps.deployment.outputs.page_url }}';
+            const baseUrl = '${{ steps.deployment.outputs.page_url }}';
             const prNumber = context.payload.pull_request.number;
+            let url = '';
+            
+            if (baseUrl && baseUrl.trim() !== '') {
+              // Append the preview path
+              url = `${baseUrl}preview/${prNumber}/`;
+            }
+            
             let body = '';
             
-            if (url && url.trim() !== '') {
-              body = `## 📄 Preview Deployment Ready\n\n**Preview URL:**\n🔗 [${url}](${url})\n\n> ✅ Preview is available at the URL above\n> ⚠️ **Note:** Preview deployments may take 5-10 minutes to become fully accessible.`;
+            if (url) {
+              body = `## 📄 Preview Deployment Ready\n\n**Preview URL:**\n🔗 [${url}](${url})\n\n> ✅ Preview is available at the URL above\n> ⚠️ **Note:** This preview deployment replaces the content at this path temporarily.`;
             } else {
-              body = `## 📄 Preview Deployment Created\n\n> ✅ The deployment was successful, but a direct preview URL was not returned immediately.\n> Please check the "Deployments" section of this PR or the repository for the link.`;
+              body = `## 📄 Preview Deployment Created\n\n> ✅ The deployment was successful, but a direct preview URL base was not returned.\n> Please check the "Deployments" section of this PR.`;
             }
             
             // Post comment
