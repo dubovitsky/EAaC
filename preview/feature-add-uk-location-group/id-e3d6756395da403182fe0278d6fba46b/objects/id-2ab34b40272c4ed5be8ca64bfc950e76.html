@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html class="frame" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<title>Implementation and Migration Layer Elements</title>
+
+	<!-- JQUERY -->
+	<script type="text/javascript" src="../../lib/jquery/jquery.min.js"></script>
+	<!-- BOOTSTRAP -->
+	<link type="text/css" rel="stylesheet" href="../../lib/bootstrap/css/bootstrap.min.yeti.css">
+	<script type="text/javascript" src="../../lib/bootstrap/js/bootstrap-3.4.1.min.js"></script>
+	<!-- REPORT SPECIFIC -->
+	<link type="text/css" rel="stylesheet" href="../../css/model.css">
+	<link type="text/css" rel="stylesheet" href="../../css/i18n.css">
+	<script type="text/javascript" src="../../js/frame.js"></script>
+	<script type="text/javascript" src="../../js/imageMapResizer.min.js"></script>
+</head>
+
+<body>
+	<div class="panel panel-default root-panel">
+
+		<div class="panel-heading root-panel-heading">
+            <!-- Name -->
+               <b>Implementation and Migration Layer Elements</b>
+
+            <!-- If a View with Viewpoint -->
+			   (<span class="i18n-elementtype-DiagramModelGroup"></span>)
+			   <a class="glyphicon glyphicon-info-sign" id="hint-DiagramModelGroup" target="hint"></a>
+		</div>
+
+		<div class="panel-body root-panel-body">
+		    <!-- If this is a digram model (has children and no bounds) show the image -->
+
+			<div role="tabpanel">
+				<!-- Nav tabs -->
+				<ul class="nav nav-tabs" role="tablist">
+                    <!-- Purpose / Documentation / Content -->
+					   <li role="presentation" class="active"><a href="#documentation" aria-controls="documentation" role="tab" data-toggle="tab" class="i18n-documentation"></a></li>
+
+                    <!-- Properties -->
+                    <li role="presentation"><a href="#properties" aria-controls="properties" role="tab" data-toggle="tab" class="i18n-properties"></a></li>
+
+                    <!-- Analysis -->
+
+						<li role="presentation"><a href="#elements" aria-controls="elements" role="tab" data-toggle="tab" class="i18n-elements"></a></li>
+						<li role="presentation"><a href="#relationships" aria-controls="relationships" role="tab" data-toggle="tab" class="i18n-relationships"></a></li>
+                    <!-- Model, Query Tab -->
+				</ul>
+
+				<!-- Tab panes -->
+				<div class="tab-content">
+					<div role="tabpanel" class="tab-pane active" id="documentation">
+						<div class="convertlinks documentation" style="white-space:pre-wrap"></div>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="properties">
+						<table class="table table-striped table-hover table-condensed">
+							<thead>
+								<tr>
+									<th class="i18n-key"></th>
+									<th class="i18n-value"></th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+					<div role="tabpanel" class="tab-pane" id="analysis">
+						<table class="table table-striped table-hover table-condensed" id="used-in-views">
+							<thead>
+								<tr><th colspan="2" class="i18n-used-in-views" /></tr>
+								<tr>
+									<th class="i18n-name"></th>
+									<th class="i18n-viewpoint"></th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+						<table class="table table-striped table-hover table-condensed" id="model-relations">
+							<thead>
+								<tr><th colspan="4" class="i18n-model-relations" /></tr>
+								<tr>
+									<th class="i18n-name"></th>
+									<th class="i18n-type"></th>
+									<th class="i18n-source"></th>
+									<th class="i18n-target"></th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+						<div role="tabpanel" class="tab-pane" id="elements">
+							<table class="table table-striped table-hover table-condensed">
+								<thead>
+									<tr>
+										<th class="i18n-name"></th>
+										<th class="i18n-type"></th>
+									</tr>
+								</thead>
+								<tbody>
+									        <tr>
+									           <td> <a href="../objects/id-1051a73d7ef04a0b80d022b5d74dac14.html" target="element"> Element </a> </td>
+									           <td> <a href="../objects/id-1051a73d7ef04a0b80d022b5d74dac14.html" target="element" class="i18n-elementtype-DiagramModelGroup"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-4556a6b757a94d7da414312214510a46.html" target="element"> Definition </a> </td>
+									           <td> <a href="../objects/id-4556a6b757a94d7da414312214510a46.html" target="element" class="i18n-elementtype-DiagramModelGroup"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-7bc4e3d1bda14d298abe453d5fba7327.html" target="element"> Notation </a> </td>
+									           <td> <a href="../objects/id-7bc4e3d1bda14d298abe453d5fba7327.html" target="element" class="i18n-elementtype-DiagramModelGroup"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-40b04216796b483c8d0ff2c310f64690.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-40b04216796b483c8d0ff2c310f64690.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-86e197ebb41e4298880a7cb964862d38.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-86e197ebb41e4298880a7cb964862d38.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-a08a4aff08694f16ac0c73a81f518c26.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-a08a4aff08694f16ac0c73a81f518c26.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-7a8eb748760649e6b25b1d95fd07dbf4.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-7a8eb748760649e6b25b1d95fd07dbf4.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-a3df699061fa4b3199f750638dd9b0ed.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-a3df699061fa4b3199f750638dd9b0ed.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+											<tr>
+											    <td> <a href="../elements/id-8869f49690c94e3e8a70fbc60b3a3797.html" target="element"> dummy (copy) (copy) (copy) (copy) (copy) (copy) </a> </td>
+											    <td> <a href="../elements/id-8869f49690c94e3e8a70fbc60b3a3797.html" target="element" class="i18n-elementtype-ApplicationService">
+											    </a> </td>
+											</tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-d377d057fe22437ea278c316eacf0466.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-d377d057fe22437ea278c316eacf0466.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-2823ed63a1d4425680218fb2798a2fe9.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-2823ed63a1d4425680218fb2798a2fe9.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-dfc07122974f41048ea387000ef913ac.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-dfc07122974f41048ea387000ef913ac.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-468187dbb8cb4a67b04071a336a5e012.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-468187dbb8cb4a67b04071a336a5e012.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-61283312d1374ebabaa131f80a656e45.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-61283312d1374ebabaa131f80a656e45.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-18bec068ef4841e6829aea4dd8620f06.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-18bec068ef4841e6829aea4dd8620f06.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-f7f98810784f48698d816fcca583831c.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-f7f98810784f48698d816fcca583831c.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-dea348924c7c47afbe6c8a808ec78201.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-dea348924c7c47afbe6c8a808ec78201.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-66258b3abd034ffda8ad02c9896658e9.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-66258b3abd034ffda8ad02c9896658e9.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+									        <tr>
+									           <td> <a href="../objects/id-25b3c424558347cb87049ea78274eb7e.html" target="element">  </a> </td>
+									           <td> <a href="../objects/id-25b3c424558347cb87049ea78274eb7e.html" target="element" class="i18n-elementtype-DiagramModelNote"> </a> </td>
+									        </tr>
+
+											<tr>
+											    <td> <a href="../elements/id-317692e478344502bff7b0c14dbe6af5.html" target="element"> Work Package </a> </td>
+											    <td> <a href="../elements/id-317692e478344502bff7b0c14dbe6af5.html" target="element" class="i18n-elementtype-WorkPackage">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-4d55c6db5f0644b484a2153f5bfd4a07.html" target="element"> Deliverable </a> </td>
+											    <td> <a href="../elements/id-4d55c6db5f0644b484a2153f5bfd4a07.html" target="element" class="i18n-elementtype-Deliverable">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-828e112f92a94316acd4b236c48e31bc.html" target="element"> Implementation Event </a> </td>
+											    <td> <a href="../elements/id-828e112f92a94316acd4b236c48e31bc.html" target="element" class="i18n-elementtype-ImplementationEvent">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-d2a75eb9ba584d68bd4655b9934bb87b.html" target="element"> Plateau </a> </td>
+											    <td> <a href="../elements/id-d2a75eb9ba584d68bd4655b9934bb87b.html" target="element" class="i18n-elementtype-Plateau">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-4dc5b5920ccd4b019731eda390ac5619.html" target="element"> Gap </a> </td>
+											    <td> <a href="../elements/id-4dc5b5920ccd4b019731eda390ac5619.html" target="element" class="i18n-elementtype-Gap">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-883ab59dc9cc4da9bc409eb7139f8b37.html" target="element">  </a> </td>
+											    <td> <a href="../elements/id-883ab59dc9cc4da9bc409eb7139f8b37.html" target="element" class="i18n-elementtype-WorkPackage">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-eabdabbc98cf4facbc726c2743b70c98.html" target="element">  </a> </td>
+											    <td> <a href="../elements/id-eabdabbc98cf4facbc726c2743b70c98.html" target="element" class="i18n-elementtype-Deliverable">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-8084f914468641408a13a794e6fea2c5.html" target="element">  </a> </td>
+											    <td> <a href="../elements/id-8084f914468641408a13a794e6fea2c5.html" target="element" class="i18n-elementtype-ImplementationEvent">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-28a6c1cb09b4453f82c972e2f18cbfc4.html" target="element">  </a> </td>
+											    <td> <a href="../elements/id-28a6c1cb09b4453f82c972e2f18cbfc4.html" target="element" class="i18n-elementtype-Plateau">
+											    </a> </td>
+											</tr>
+
+											<tr>
+											    <td> <a href="../elements/id-67f37770bd65442d89a2b58eb56b4001.html" target="element">  </a> </td>
+											    <td> <a href="../elements/id-67f37770bd65442d89a2b58eb56b4001.html" target="element" class="i18n-elementtype-Gap">
+											    </a> </td>
+											</tr>
+
+
+								</tbody>
+							</table>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="relationships">
+							<table class="table table-striped table-hover table-condensed">
+								<thead>
+									<tr>
+										<th class="i18n-name"></th>
+										<th class="i18n-type"></th>
+										<th class="i18n-source"></th>
+										<th class="i18n-target"></th>
+									</tr>
+								</thead>
+								<tbody>
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelGroup -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelGroup -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelGroup -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+											<!-- DEBUG: Skipping element from class com.archimatetool.model.impl.DiagramModelNote -->
+
+								</tbody>
+							</table>
+						</div>
+			  </div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">imageMapResize();</script>
+</body>
+</html>
