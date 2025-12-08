@@ -2,15 +2,13 @@ name: Publish ArchiMate Model to GitHub Pages
 
 on:
   push:
-    paths:
-      - 'model.archimate'
     branches:
       - main
       - 'feature/**'
       - 'feat/**'
   pull_request:
-    paths:
-      - 'model.archimate'
+    branches:
+      - '**'
   workflow_dispatch:
 
 permissions:
@@ -99,14 +97,20 @@ jobs:
         with:
           path: docs
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy preview to GitHub Pages
+        if: github.ref != 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          preview: ${{ github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && github.ref_type == 'branch') }}
+          preview: true
         # Note: First deployment can take 5-10 minutes while GitHub Pages initializes
         # The "deployment_queued" status is normal during this time
         # Preview deployments (feature branches/PRs) are accessible via preview URLs
+
+      - name: Deploy production to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        id: deployment_prod
+        uses: actions/deploy-pages@v4
 
       - name: Display Preview URL (for PRs and feature branches)
         if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && github.ref_type == 'branch')
