@@ -112,31 +112,62 @@ jobs:
         id: deployment_prod
         uses: actions/deploy-pages@v4
 
-      - name: Display Preview URL (for PRs and feature branches)
-        if: github.event_name == 'pull_request' || (github.ref != 'refs/heads/main' && github.ref_type == 'branch')
+      - name: Add production link to job summary
+        if: github.ref == 'refs/heads/main'
         run: |
-          echo "::notice::Preview deployment created!"
-          echo "::notice::Preview URL will be available in the deployment status"
-          echo "::notice::For PRs, check the 'Environments' section or the PR page for the preview link"
+          PROD_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
+          echo "## 🌐 Production Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Production URL:**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[$PROD_URL]($PROD_URL)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Construct Preview URL
+        if: github.ref != 'refs/heads/main'
+        id: preview_url
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # For PRs, use PR number
+            PREVIEW_PATH="preview/${{ github.event.pull_request.number }}"
+          else
+            # For branches, sanitize branch name (replace / with -)
+            BRANCH_NAME="${{ github.ref_name }}"
+            SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | sed 's/\//-/g')
+            PREVIEW_PATH="preview/$SANITIZED_BRANCH"
+          fi
+          
+          PREVIEW_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$PREVIEW_PATH/"
+          echo "url=$PREVIEW_URL" >> $GITHUB_OUTPUT
+          echo "Preview URL: $PREVIEW_URL"
 
       - name: Add link to job summary
-        if: steps.deployment.outputs.page_url != ''
+        if: github.ref != 'refs/heads/main'
         run: |
-          echo "✅ Deployed to GitHub Pages" >> $GITHUB_STEP_SUMMARY
+          echo "## 📄 GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "URL: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "**Preview URL (PR #${{ github.event.pull_request.number }}):**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Preview URL (Branch: ${{ github.ref_name }}):**" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[${{ steps.preview_url.outputs.url }}](${{ steps.preview_url.outputs.url }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with preview link
-        if: github.event_name == 'pull_request' && steps.deployment.outputs.page_url != ''
+        if: github.event_name == 'pull_request' && github.ref != 'refs/heads/main'
         uses: actions/github-script@v7
         with:
           script: |
-            const url = ${{ toJson(steps.deployment.outputs.page_url) }};
-            const body = `📄 Preview is ready: ${url}`;
+            const url = `${{ steps.preview_url.outputs.url }}`;
+            const prNumber = context.payload.pull_request.number;
+            const body = `## 📄 Preview Deployment Ready\n\nYour preview is available at:\n\n🔗 [${url}](${url})\n\n> ⚠️ Note: Preview deployments may take 5-10 minutes to become available after the workflow completes.`;
+            
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: prNumber,
               body
             });
 
